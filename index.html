@@ -3,502 +3,600 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقرير صيانة معدات - كنتروليكسا (Controlexa)</title>
+    <title>مركز شباب جزيرة دلهمو البحرية</title>
     
-    <!-- Tailwind CSS -->
+    <!-- Tailwind CSS لتصميم الموقع -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Cairo for Arabic -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome للأيقونات -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- html2pdf.js for PDF Generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Cairo', 'sans-serif'],
-                    },
-                    colors: {
-                        primary: '#1e293b', // Dark slate/grey for Controlexa
-                        secondary: '#0ea5e9', // Electric blue/cyan for lightning accent
-                    }
-                }
-            }
-        }
-    </script>
-
+    <!-- تخصيصات إضافية بسيطة -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
+        
         body {
             font-family: 'Cairo', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f8fafc;
         }
         
-        /* A4 Paper Styling for the report preview */
-        .a4-paper {
-            width: 210mm;
-            min-height: 297mm;
-            padding: 20mm;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        /* إخفاء الأقسام غير النشطة */
+        .section-hidden {
+            display: none;
+        }
+        
+        /* حركة ظهور ناعمة */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        @media (max-width: 768px) {
-            .a4-paper {
-                width: 100%;
-                min-height: auto;
-                padding: 15px;
-            }
-        }
-
-        /* Print Specific Styles */
-        @media print {
-            body {
-                background: white;
-            }
-            #input-section, #header-nav {
-                display: none;
-            }
-            .a4-paper {
-                box-shadow: none;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-            }
+        /* تنسيق الرابط النشط في القائمة */
+        .nav-active {
+            color: #facc15 !important; /* لون ذهبي */
+            font-weight: bold;
+            border-bottom: 2px solid #facc15;
         }
     </style>
 </head>
-<body class="text-gray-800 antialiased">
+<body class="text-slate-800 flex flex-col min-h-screen">
 
-    <!-- Navbar -->
-    <nav id="header-nav" class="bg-primary text-white shadow-md p-4 border-b-4 border-secondary">
-        <div class="container mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-bolt text-secondary text-3xl"></i>
-                <div>
-                    <h1 class="text-xl font-bold tracking-wide">CONTROLEXA | كنتروليكسا</h1>
-                    <p class="text-xs font-semibold text-gray-300 mt-1">نظام تقارير الصيانة والإصلاح</p>
+    <!-- شريط الملاحة (Navbar) -->
+    <nav class="bg-slate-900 text-white shadow-xl sticky top-0 z-50 border-b-4 border-red-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <!-- الشعار والاسم -->
+                <div class="flex items-center cursor-pointer" onclick="navigate('home')">
+                    <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center p-1 ml-3 shadow-md border-2 border-yellow-400 overflow-hidden">
+                         <img src="logo.png" alt="لوجو مركز شباب جزيرة دلهمو" class="w-full h-full object-contain" onerror="this.src='https://placehold.co/100x100/1a1f36/ffffff?text=لوجو+المركز'">
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-black text-xl tracking-wide text-white">مركز شباب جزيرة</span>
+                        <span class="font-bold text-lg text-red-500 mt--1">دلهمو البحرية</span>
+                    </div>
+                </div>
+                
+                <!-- القائمة للكمبيوتر -->
+                <div class="hidden md:flex items-center space-x-reverse space-x-6">
+                    <button onclick="navigate('home')" class="nav-btn nav-active pb-1 hover:text-yellow-400 transition" data-target="home">الرئيسية</button>
+                    <button onclick="navigate('tournaments')" class="nav-btn pb-1 hover:text-yellow-400 transition" data-target="tournaments">البطولات</button>
+                    <button onclick="navigate('groups')" class="nav-btn pb-1 hover:text-yellow-400 transition" data-target="groups">دور المجموعات</button>
+                    <button onclick="navigate('schedule')" class="nav-btn pb-1 hover:text-yellow-400 transition" data-target="schedule">مواعيد المباريات</button>
+                    <button onclick="navigate('results')" class="nav-btn pb-1 hover:text-yellow-400 transition" data-target="results">النتائج</button>
+                </div>
+
+                <!-- زر القائمة للموبايل -->
+                <div class="md:hidden flex items-center">
+                    <button onclick="toggleMobileMenu()" class="text-white hover:text-yellow-400 focus:outline-none">
+                        <i id="mobile-menu-icon" class="fa-solid fa-bars text-3xl"></i>
+                    </button>
                 </div>
             </div>
-            <div class="text-sm font-bold text-secondary hidden md:block text-left">
-                كهرباء باور • كنترول • ميكانيكا • هيدروليك<br>
-                <span class="text-xs text-white opacity-80 font-normal">Precision Control. Reliable Power.</span>
-                <div class="text-white mt-1 text-xs" dir="ltr"><i class="fa-solid fa-phone mr-1"></i> 01068379161</div>
+        </div>
+
+        <!-- القائمة المنسدلة للموبايل -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 pb-4 px-4 shadow-inner border-t border-slate-700">
+            <div class="flex flex-col space-y-3 pt-2">
+                <button onclick="navigate('home')" class="nav-btn-mobile text-right w-full py-2 text-yellow-400 font-bold" data-target="home">الرئيسية</button>
+                <button onclick="navigate('tournaments')" class="nav-btn-mobile text-right w-full py-2 text-white" data-target="tournaments">البطولات</button>
+                <button onclick="navigate('groups')" class="nav-btn-mobile text-right w-full py-2 text-white" data-target="groups">دور المجموعات</button>
+                <button onclick="navigate('schedule')" class="nav-btn-mobile text-right w-full py-2 text-white" data-target="schedule">مواعيد المباريات</button>
+                <button onclick="navigate('results')" class="nav-btn-mobile text-right w-full py-2 text-white" data-target="results">نتائج المباريات</button>
             </div>
         </div>
     </nav>
 
-    <main class="container mx-auto p-4 md:p-6 lg:p-8 flex flex-col gap-8 mb-20">
-
-        <!-- Input Section -->
-        <section id="input-section" class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-secondary">
-            <div class="mb-6 border-b pb-4">
-                <h2 class="text-2xl font-bold text-primary flex items-center gap-2">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                    إدخال بيانات التقرير
-                </h2>
-                <p class="text-gray-500 text-sm mt-1">يرجى ملء كافة تفاصيل المعدة والإصلاحات بدقة لإصدار التقرير.</p>
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-grow">
+        
+        <!-- قسم الرئيسية -->
+        <section id="home" class="view-section fade-in">
+            <!-- البانر الترحيبي -->
+            <div class="relative bg-slate-900 text-white overflow-hidden border-b-8 border-red-700">
+                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-600 via-slate-900 to-black"></div>
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+                    <div class="mb-6 flex justify-center">
+                         <div class="flex space-x-reverse space-x-2 text-yellow-400 text-2xl">
+                             <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                         </div>
+                    </div>
+                    <h1 class="text-4xl md:text-6xl font-black mb-4 drop-shadow-lg leading-tight">
+                        أهلاً بكم في معقل الأبطال <br>
+                        <span class="text-red-500">مركز شباب جزيرة دلهمو البحرية</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-8 font-semibold">
+                        تاريخ عريق ومستقبل مشرق
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-4 flex-wrap">
+                        <button onclick="navigate('groups')" class="bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold py-3 px-6 rounded-full shadow-lg transform transition hover:scale-105 flex items-center justify-center w-full sm:w-auto">
+                            <i class="fa-solid fa-layer-group ml-2 text-xl"></i> دور المجموعات
+                        </button>
+                        <button onclick="navigate('schedule')" class="bg-white hover:bg-slate-100 text-slate-900 font-bold py-3 px-6 rounded-full shadow-lg transform transition hover:scale-105 flex items-center justify-center w-full sm:w-auto">
+                            <i class="fa-solid fa-calendar-days ml-2 text-xl"></i> مواعيد المباريات
+                        </button>
+                        <button onclick="navigate('results')" class="bg-red-700 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition hover:scale-105 flex items-center justify-center border-2 border-red-600 w-full sm:w-auto">
+                            <i class="fa-solid fa-stopwatch ml-2 text-xl"></i> نتائج المباريات
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <form id="report-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <!-- General Info -->
-                <div class="space-y-4 md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">اسم المشروع / الموقع <span class="text-red-500">*</span></label>
-                        <input type="text" id="in-project" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="مثال: موقع العاصمة الإدارية">
+            <!-- قسم بطل النسخة السابقة (فريق مؤنسة) -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                    <div class="bg-yellow-400 text-slate-900 text-center py-4">
+                        <h2 class="text-3xl font-black"><i class="fa-solid fa-trophy ml-2"></i> بطل بطولة عيد الفطر السابقة <i class="fa-solid fa-trophy mr-2"></i></h2>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">التاريخ <span class="text-red-500">*</span></label>
-                        <input type="date" id="in-date" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">رقم التقرير</label>
-                        <input type="text" id="in-report-num" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="مثال: REP-2026-001">
-                    </div>
-                </div>
-
-                <hr class="md:col-span-2 my-2">
-
-                <!-- Equipment Details -->
-                <div class="space-y-4 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">اسم المعدة <span class="text-red-500">*</span></label>
-                        <input type="text" id="in-equipment" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="مثال: لودر كاترپيلار, حفار...">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">كود/رقم المعدة <span class="text-red-500">*</span></label>
-                        <input type="text" id="in-eq-code" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="مثال: L-405">
+                    <div class="p-8 md:p-12 text-center">
+                        <h3 class="text-4xl md:text-5xl font-black text-red-700 mb-6 drop-shadow-sm">« فريق مؤنسة »</h3>
+                        <p class="text-lg text-slate-600 mb-8 max-w-3xl mx-auto">
+                            سطر فريق مؤنسة اسمه بأحرف من ذهب بعد تتويجه بلقب بطولة عيد الفطر للعام السابق، بعد أداء استثنائي ومباريات حماسية لا تُنسى على أرض مركز شباب جزيرة دلهمو البحرية.
+                        </p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                            <div class="rounded-2xl overflow-hidden shadow-lg border-4 border-slate-100 group relative">
+                                <img src="photo1.jpg" alt="صورة من بطولة عيد الفطر" class="w-full h-72 object-cover transform transition group-hover:scale-110" onerror="this.src='https://placehold.co/600x400/1e293b/ffffff?text=صورة+من+البطولة+1'">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                                    <p class="text-white font-bold p-4">لقطات من البطولة</p>
+                                </div>
+                            </div>
+                            <div class="rounded-2xl overflow-hidden shadow-lg border-4 border-slate-100 group relative">
+                                <img src="photo2.jpg" alt="صورة من بطولة عيد الفطر" class="w-full h-72 object-cover transform transition group-hover:scale-110" onerror="this.src='https://placehold.co/600x400/1e293b/ffffff?text=صورة+من+البطولة+2'">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                                    <p class="text-white font-bold p-4">الراعي الرسمي OPPO</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Issue Details -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">وصف العطل / المشكلة (البيانات) <span class="text-red-500">*</span></label>
-                    <textarea id="in-issue" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="اشرح المشكلة أو العطل الذي حدث للمعدة..."></textarea>
-                </div>
-
-                <!-- Repairs Done -->
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">الإصلاحات التي تمت (العمل المنجز) <span class="text-red-500">*</span></label>
-                    <textarea id="in-repairs" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="اكتب بالتفصيل خطوات الإصلاح التي قام بها الفنيون..."></textarea>
-                </div>
-
-                <!-- Spare parts & Notes -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">قطع الغيار المستخدمة</label>
-                    <textarea id="in-parts" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="اكتب قطع الغيار إن وجدت..."></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">ملاحظات إضافية / توصيات</label>
-                    <textarea id="in-notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="ملاحظات للإدارة أو توصيات لتجنب العطل مستقبلاً..."></textarea>
-                </div>
-
-                <!-- Personnel -->
-                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">اسم الفني / الميكانيكي <span class="text-red-500">*</span></label>
-                        <input type="text" id="in-tech" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="اسم منفذ الإصلاح">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">المهندس المشرف</label>
-                        <input type="text" id="in-eng" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition" placeholder="اسم المهندس المسؤول">
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="md:col-span-2 mt-6 flex gap-4">
-                    <button type="submit" class="bg-primary hover:bg-blue-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-200 flex items-center gap-2">
-                        <i class="fa-solid fa-file-invoice"></i>
-                        إنشاء التقرير
-                    </button>
-                    <button type="button" onclick="clearForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-lg shadow transition duration-200 flex items-center gap-2">
-                        <i class="fa-solid fa-eraser"></i>
-                        مسح البيانات
-                    </button>
-                </div>
-            </form>
+            </div>
         </section>
 
-        <!-- Output / Report Preview Section (Hidden by default) -->
-        <section id="output-section" class="hidden flex-col items-center gap-4">
-            
-            <!-- Actions for PDF -->
-            <div class="w-full max-w-4xl flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-lg shadow-md border-r-4 border-green-500 gap-4">
-                <p class="font-bold text-green-700 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-check"></i>
-                    تم إنشاء التقرير بنجاح!
-                </p>
-                <div class="flex flex-wrap gap-2 justify-end">
-                    <button onclick="startNewReport()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition flex items-center gap-2 text-sm shadow">
-                        <i class="fa-solid fa-plus"></i> تقرير جديد
-                    </button>
-                    <button onclick="editReport()" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition flex items-center gap-2 text-sm shadow">
-                        <i class="fa-solid fa-pen"></i> تعديل
-                    </button>
-                    <button onclick="exportToWord()" class="bg-blue-900 hover:bg-blue-950 text-white py-2 px-4 rounded-md transition font-bold flex items-center gap-2 shadow-lg">
-                        <i class="fa-solid fa-file-word"></i> وورد
-                    </button>
-                    <button onclick="downloadPDF()" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md transition font-bold flex items-center gap-2 shadow-lg">
-                        <i class="fa-solid fa-file-pdf"></i> PDF
-                    </button>
-                </div>
+        <!-- قسم البطولات -->
+        <section id="tournaments" class="view-section section-hidden fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="flex items-center mb-8 border-b-2 border-red-200 pb-4">
+                <i class="fa-solid fa-medal text-3xl text-red-700 ml-3"></i>
+                <h2 class="text-3xl font-black text-slate-800">البطولات الحالية والقادمة</h2>
             </div>
+            <div id="tournaments-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- سيتم حقن البطولات هنا -->
+            </div>
+        </section>
 
-            <!-- The Actual A4 Report to be converted to PDF -->
-            <div class="overflow-x-auto w-full pb-10">
-                <div id="pdf-content" class="a4-paper relative">
-                    
-                    <!-- Report Header -->
-                    <div class="flex justify-between items-start border-b-4 border-primary pb-6 mb-6">
-                        <div class="flex items-center gap-4">
-                            <div class="text-primary flex items-center justify-center border-4 border-primary w-20 h-20 rounded-xl relative bg-gray-50 shadow-inner">
-                                <span class="text-5xl font-black tracking-tighter" style="font-family: sans-serif;">CX</span>
-                                <i class="fa-solid fa-bolt text-secondary absolute text-2xl" style="top: 50%; left: 50%; transform: translate(-50%, -50%); text-shadow: 0 0 5px rgba(14,165,233,0.8);"></i>
-                            </div>
-                            <div>
-                                <h1 class="text-3xl font-black text-primary tracking-widest uppercase">Controlexa</h1>
-                                <h2 class="text-xl font-bold text-gray-800">كنتروليكسا</h2>
-                                <p class="text-sm text-gray-600 font-bold mt-1">كهرباء باور | كنترول | ميكانيكا | هيدروليك</p>
-                                <p class="text-xs text-secondary font-bold mt-1">Precision Control. Reliable Power.</p>
-                            </div>
-                        </div>
-                        <div class="text-left bg-gray-50 p-4 rounded-lg border shadow-sm min-w-[200px]">
-                            <p class="text-sm font-bold text-gray-700 mb-2">تاريخ التقرير: <span id="out-date" class="font-normal"></span></p>
-                            <p class="text-sm font-bold text-gray-700 mb-3">رقم التقرير: <span id="out-report-num" class="font-normal text-red-600"></span></p>
-                            <div class="pt-2 border-t border-gray-200">
-                                <p class="text-xs font-bold text-gray-800" dir="ltr"><i class="fa-solid fa-phone text-secondary mr-1"></i> 01068379161</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section 1: Project & Equipment Info -->
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                        <h3 class="text-lg font-bold text-primary border-b pb-2 mb-3"><i class="fa-solid fa-truck-monster ml-2"></i>البيانات الأساسية</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">اسم المشروع / الموقع:</p>
-                                <p class="font-bold text-gray-800" id="out-project"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">اسم المعدة:</p>
-                                <p class="font-bold text-gray-800" id="out-equipment"></p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500 mb-1">كود / رقم المعدة:</p>
-                                <p class="font-bold inline-block bg-yellow-100 text-yellow-800 px-2 py-1 rounded" id="out-eq-code"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section 2: Issue & Repairs -->
-                    <div class="mb-6 space-y-6">
-                        
-                        <div>
-                            <h3 class="text-lg font-bold text-red-700 border-b pb-2 mb-3"><i class="fa-solid fa-triangle-exclamation ml-2"></i>وصف العطل / المشكلة</h3>
-                            <div class="bg-red-50 border border-red-100 p-4 rounded-lg min-h-[80px]">
-                                <p class="text-gray-800 whitespace-pre-wrap leading-relaxed" id="out-issue"></p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-bold text-green-700 border-b pb-2 mb-3"><i class="fa-solid fa-wrench ml-2"></i>الإصلاحات التي تمت (العمل المنجز)</h3>
-                            <div class="bg-green-50 border border-green-100 p-4 rounded-lg min-h-[120px]">
-                                <p class="text-gray-800 whitespace-pre-wrap leading-relaxed" id="out-repairs"></p>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Section 3: Parts & Notes -->
-                    <div class="grid grid-cols-2 gap-6 mb-8">
-                        <div>
-                            <h3 class="text-md font-bold text-primary border-b pb-2 mb-3"><i class="fa-solid fa-cogs ml-2"></i>قطع الغيار المستخدمة</h3>
-                            <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg min-h-[100px]">
-                                <p class="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed" id="out-parts"></p>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="text-md font-bold text-primary border-b pb-2 mb-3"><i class="fa-solid fa-clipboard-list ml-2"></i>ملاحظات وتوصيات</h3>
-                            <div class="bg-gray-50 border border-gray-200 p-3 rounded-lg min-h-[100px]">
-                                <p class="text-gray-700 whitespace-pre-wrap text-sm leading-relaxed" id="out-notes"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Signatures -->
-                    <div class="mt-12 pt-8 border-t-2 border-gray-200 relative z-10">
-                        <div class="grid grid-cols-3 gap-4 text-center">
-                            <div>
-                                <p class="font-bold text-gray-700 mb-12">الفني / الميكانيكي</p>
-                                <p class="text-gray-800 border-t border-dashed border-gray-400 pt-2 inline-block min-w-[150px]" id="out-tech"></p>
-                            </div>
-                            <div>
-                                <p class="font-bold text-gray-700 mb-12">المهندس المشرف</p>
-                                <p class="text-gray-800 border-t border-dashed border-gray-400 pt-2 inline-block min-w-[150px]" id="out-eng"></p>
-                            </div>
-                            <div>
-                                <p class="font-bold text-gray-700 mb-12">اعتماد الإدارة</p>
-                                <p class="text-gray-800 border-t border-dashed border-gray-400 pt-2 inline-block min-w-[150px]"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Watermark -->
-                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
-                        <div class="opacity-[0.03] text-[250px] font-black tracking-tighter" style="font-family: sans-serif;">CX</div>
-                    </div>
-
-                    <!-- Footer Text -->
-                    <div class="mt-16 text-center relative z-10 border-t border-gray-200 pt-6">
-                        <p class="text-sm font-bold text-primary opacity-90">كنتروليكسا.. إحكام السيطرة، كفاءة الطاقة.</p>
-                        <p class="text-sm font-bold text-secondary opacity-90 mt-1 mb-2">حيث تلتقي الدقة بالقوة.</p>
-                        <p class="text-sm font-bold text-gray-600" dir="ltr"><i class="fa-solid fa-phone"></i> 01068379161</p>
-                    </div>
-
+        <!-- قسم دور المجموعات -->
+        <section id="groups" class="view-section section-hidden fade-in max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="flex items-center justify-between mb-8 border-b-2 border-red-200 pb-4">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-layer-group text-3xl text-red-700 ml-3"></i>
+                    <h2 class="text-3xl font-black text-slate-800">دور المجموعات (التمهيدي)</h2>
                 </div>
+                <span class="bg-red-100 text-red-800 text-sm font-bold px-3 py-1 rounded-full">بطولة الوفاء</span>
+            </div>
+            <div id="groups-container" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                <!-- سيتم حقن المجموعات هنا -->
+            </div>
+        </section>
+
+        <!-- قسم مواعيد المباريات القادمة -->
+        <section id="schedule" class="view-section section-hidden fade-in max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="flex items-center justify-between mb-8 border-b-2 border-red-200 pb-4">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-calendar-days text-3xl text-red-700 ml-3"></i>
+                    <h2 class="text-3xl font-black text-slate-800">مواعيد المباريات</h2>
+                </div>
+                <span class="bg-red-100 text-red-800 text-sm font-bold px-3 py-1 rounded-full">الأيام القادمة</span>
+            </div>
+            <div id="schedule-list" class="space-y-4">
+                <!-- سيتم حقن جدول المباريات هنا -->
+            </div>
+        </section>
+
+        <!-- قسم نتائج المباريات -->
+        <section id="results" class="view-section section-hidden fade-in max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="flex items-center justify-between mb-8 border-b-2 border-red-200 pb-4">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-stopwatch text-3xl text-red-700 ml-3"></i>
+                    <h2 class="text-3xl font-black text-slate-800">نتائج المباريات</h2>
+                </div>
+                <span class="bg-red-100 text-red-800 text-sm font-bold px-3 py-1 rounded-full">بطولة الوفاء</span>
+            </div>
+            <div id="results-list" class="space-y-4">
+                <!-- سيتم حقن النتائج هنا -->
             </div>
         </section>
 
     </main>
 
+    <!-- الفوتر (التذييل) -->
+    <footer class="bg-slate-900 text-white pt-12 pb-6 mt-auto border-t-4 border-red-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <div class="flex items-center mb-4">
+                    <img src="logo.png" alt="لوجو" class="w-10 h-10 ml-2" onerror="this.src='https://placehold.co/40x40/ffffff/1a1f36?text=L'">
+                    <span class="font-black text-xl">جزيرة دلهمو البحرية</span>
+                </div>
+                <p class="text-slate-400 text-sm font-semibold">
+                    تأسس عام 1974. نصنع الأبطال ونرعى المواهب الرياضية لشبابنا.
+                </p>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-4 text-yellow-400">روابط سريعة</h3>
+                <ul class="space-y-2 text-sm text-slate-300 font-semibold">
+                    <li><button onclick="navigate('groups')" class="hover:text-white transition">دور المجموعات</button></li>
+                    <li><button onclick="navigate('schedule')" class="hover:text-white transition">مواعيد المباريات</button></li>
+                    <li><button onclick="navigate('results')" class="hover:text-white transition">أحدث النتائج</button></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-bold text-lg mb-4 text-yellow-400">المركز الإعلامي</h3>
+                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                    <p class="text-sm text-slate-300 mb-2">تغطية المباريات، التصاميم، وإدارة الميديا تحت إشراف:</p>
+                    <div class="flex items-center mt-2">
+                        <i class="fa-solid fa-camera-retro text-yellow-400 text-xl ml-2"></i>
+                        <span class="font-black text-lg text-white">بسام وليد (Bassam Waleed)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center text-slate-500 text-sm mt-8 pt-6 border-t border-slate-800 font-semibold">
+            جميع الحقوق محفوظة &copy; 2026 مركز شباب جزيرة دلهمو البحرية
+        </div>
+    </footer>
+
+    <!-- سكربت جافاسكريبت -->
     <script>
-        // Set today's date automatically in the form
-        document.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('in-date').value = today;
+        // --- 1. بيانات بطولة الوفاء ---
+        
+        const mockTournaments = [
+            { id: 1, name: 'بطولة الوفاء', sport: 'كرة قدم', status: 'جاري', date: 'الآن', participants: '24 فريق' },
+        ];
+
+        // --- بيانات مواعيد المباريات القادمة ---
+        const mockFixtures = [
+            { id: 4, tournament: 'بطولة الوفاء', teamA: 'نجوم المستقبل', teamB: 'صقور العرب', date: 'الاثنين 23/3/2026', time: '4:00 عصراً' },
+            { id: 5, tournament: 'بطولة الوفاء', teamA: 'مدريد', teamB: 'الهلال', date: 'الاثنين 23/3/2026', time: '4:30 عصراً' },
+            { id: 6, tournament: 'بطولة الوفاء', teamA: 'النسور', teamB: 'الأبطال', date: 'الاثنين 23/3/2026', time: '5:00 مساءً' },
+            { id: 1, tournament: 'بطولة الوفاء', teamA: 'الأمل', teamB: 'النيل', date: 'الخميس', time: '4:00 عصراً' },
+            { id: 2, tournament: 'بطولة الوفاء', teamA: 'شباب العلاوية', teamB: 'طهواي', date: 'الخميس', time: '5:00 عصراً' },
+            { id: 3, tournament: 'بطولة الوفاء', teamA: 'عزبة كرم', teamB: 'الأصدقاء', date: 'الخميس', time: '6:00 مساءً' },
+        ];
+
+        // --- نتائج المباريات ---
+        const mockResults = [
+            // مباريات اليوم (لم تبدأ بعد أو انتظار النتيجة)
+            { id: 9, tournament: 'بطولة الوفاء', teamA: 'النسور', teamB: 'الأبطال', scoreA: '-', scoreB: '-', date: 'الاثنين 23/3/2026', status: 'انتظار' },
+            { id: 8, tournament: 'بطولة الوفاء', teamA: 'مدريد', teamB: 'الهلال', scoreA: '-', scoreB: '-', date: 'الاثنين 23/3/2026', status: 'انتظار' },
+            { id: 7, tournament: 'بطولة الوفاء', teamA: 'نجوم المستقبل', teamB: 'صقور العرب', scoreA: '-', scoreB: '-', date: 'الاثنين 23/3/2026', status: 'انتظار' },
+
+            // اليوم الثاني
+            { id: 6, tournament: 'بطولة الوفاء (اليوم الثاني)', teamA: 'الجمعية', teamB: 'مدريد', scoreA: '3', scoreB: '0', date: 'المباراة الثالثة', status: 'فوز الجمعية' },
+            { id: 5, tournament: 'بطولة الوفاء (اليوم الثاني)', teamA: 'كفر داود', teamB: 'طهواي', scoreA: '3', scoreB: '1', date: 'المباراة الثانية', status: 'فوز كفر داود' },
+            { id: 4, tournament: 'بطولة الوفاء (اليوم الثاني)', teamA: 'كفر الطراينه', teamB: 'الأصدقاء', scoreA: '3', scoreB: '3', date: 'المباراة الأولى', status: 'تعادل' },
             
-            // Generate a random report number format
-            const randomNum = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('in-report-num').value = `REP-${new Date().getFullYear()}-${randomNum}`;
-        });
+            // اليوم الأول
+            { id: 3, tournament: 'بطولة الوفاء (اليوم الأول)', teamA: 'عزبة الستة', teamB: 'شباب العلاوية', scoreA: '3', scoreB: '1', date: 'المباراة الثالثة', status: 'فوز عزبة الستة' },
+            { id: 2, tournament: 'بطولة الوفاء (اليوم الأول)', teamA: 'القدس أ', teamB: 'النيل', scoreA: '1', scoreB: '0', date: 'المباراة الثانية', status: 'فوز القدس أ' },
+            { id: 1, tournament: 'بطولة الوفاء (اليوم الأول)', teamA: 'الأمل', teamB: 'عزبة كرم', scoreA: '0', scoreB: '0', date: 'المباراة الأولى', status: 'تعادل' },
+        ];
 
-        // Handle Form Submission
-        document.getElementById('report-form').addEventListener('submit', function(e) {
-            e.preventDefault(); // Prevent page reload
-
-            // Get Values
-            const date = document.getElementById('in-date').value;
-            const reportNum = document.getElementById('in-report-num').value || 'غير محدد';
-            const project = document.getElementById('in-project').value;
-            const equipment = document.getElementById('in-equipment').value;
-            const eqCode = document.getElementById('in-eq-code').value;
-            const issue = document.getElementById('in-issue').value;
-            const repairs = document.getElementById('in-repairs').value;
-            const parts = document.getElementById('in-parts').value || 'لا يوجد';
-            const notes = document.getElementById('in-notes').value || 'لا توجد ملاحظات';
-            const tech = document.getElementById('in-tech').value;
-            const eng = document.getElementById('in-eng').value || 'ــــــــــــــ';
-
-            // Set Values in Report Preview
-            document.getElementById('out-date').innerText = date;
-            document.getElementById('out-report-num').innerText = reportNum;
-            document.getElementById('out-project').innerText = project;
-            document.getElementById('out-equipment').innerText = equipment;
-            document.getElementById('out-eq-code').innerText = eqCode;
-            document.getElementById('out-issue').innerText = issue;
-            document.getElementById('out-repairs').innerText = repairs;
-            document.getElementById('out-parts').innerText = parts;
-            document.getElementById('out-notes').innerText = notes;
-            document.getElementById('out-tech').innerText = tech;
-            document.getElementById('out-eng').innerText = eng;
-
-            // UI Changes: Hide Form, Show Report
-            document.getElementById('input-section').classList.add('hidden');
-            document.getElementById('output-section').classList.remove('hidden');
-            document.getElementById('output-section').classList.add('flex');
-            
-            // Scroll to top smoothly
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-
-        // Edit Report Button
-        function editReport() {
-            document.getElementById('output-section').classList.add('hidden');
-            document.getElementById('output-section').classList.remove('flex');
-            document.getElementById('input-section').classList.remove('hidden');
-        }
-
-        // Clear Form
-        function clearForm() {
-            if(confirm('هل أنت متأكد من مسح جميع البيانات المدخلة؟')) {
-                document.getElementById('report-form').reset();
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('in-date').value = today;
-                const randomNum = Math.floor(1000 + Math.random() * 9000);
-                document.getElementById('in-report-num').value = `REP-${new Date().getFullYear()}-${randomNum}`;
+        // --- بيانات المجموعات (بناء على جدول المباريات) ---
+        const mockGroupsData = [
+            {
+                name: 'المجموعة الأولى',
+                teams: [
+                    { rank: 1, name: 'عزبة كرم', p: 1, w: 0, d: 1, l: 0, pts: 1 },
+                    { rank: 1, name: 'الأمل', p: 1, w: 0, d: 1, l: 0, pts: 1 },
+                    { rank: 3, name: 'شباب سلومة', p: 0, w: 0, d: 0, l: 0, pts: 0 }
+                ],
+                matches: [
+                    { teamA: 'عزبة كرم', teamB: 'الأمل', score: '0 - 0', status: 'انتهت' },
+                    { teamA: 'الأمل', teamB: 'شباب سلومة', score: 'الثلاثاء', status: '4:00 عصراً' },
+                    { teamA: 'عزبة كرم', teamB: 'شباب سلومة', score: 'الخميس', status: '5:00 مساءً' }
+                ]
+            },
+            {
+                name: 'المجموعة الثانية',
+                teams: [
+                    { rank: 1, name: 'القدس أ', p: 1, w: 1, d: 0, l: 0, pts: 3 },
+                    { rank: 2, name: 'النصر', p: 0, w: 0, d: 0, l: 0, pts: 0 },
+                    { rank: 3, name: 'النيل', p: 1, w: 0, d: 0, l: 1, pts: 0 }
+                ],
+                matches: [
+                    { teamA: 'النيل', teamB: 'القدس أ', score: '0 - 1', status: 'انتهت' },
+                    { teamA: 'القدس', teamB: 'النصر', score: 'الأربعاء', status: '4:00 عصراً' },
+                    { teamA: 'القدس أ', teamB: 'النصر', score: 'الجمعة', status: '5:00 مساءً' }
+                ]
+            },
+            {
+                name: 'المجموعة الثالثة',
+                teams: [
+                    { rank: 1, name: 'عزبة الستة', p: 1, w: 1, d: 0, l: 0, pts: 3 },
+                    { rank: 2, name: 'مؤنسة', p: 0, w: 0, d: 0, l: 0, pts: 0 },
+                    { rank: 3, name: 'شباب العلاوية', p: 1, w: 0, d: 0, l: 1, pts: 0 }
+                ],
+                matches: [
+                    { teamA: 'شباب العلاوية', teamB: 'عزبة الستة', score: '1 - 3', status: 'انتهت' },
+                    { teamA: 'مؤنسة', teamB: 'شباب العلاوية', score: 'الاثنين', status: '5:00 مساءً' },
+                    { teamA: 'مؤنسة', teamB: 'عزبة الستة', score: 'الخميس', status: '4:30 عصراً' }
+                ]
+            },
+            {
+                name: 'المجموعة الرابعة',
+                teams: [
+                    { rank: 1, name: 'كفر الطراينة', p: 1, w: 0, d: 1, l: 0, pts: 1 },
+                    { rank: 1, name: 'الأصدقاء', p: 1, w: 0, d: 1, l: 0, pts: 1 },
+                    { rank: 3, name: 'ساقية المنقدي', p: 0, w: 0, d: 0, l: 0, pts: 0 }
+                ],
+                matches: [
+                    { teamA: 'كفر الطراينة', teamB: 'الأصدقاء', score: '3 - 3', status: 'انتهت' },
+                    { teamA: 'ساقية المنقدي', teamB: 'كفر الطراينة', score: 'الثلاثاء', status: '4:30 عصراً' },
+                    { teamA: 'الأصدقاء', teamB: 'ساقية المنقدي', score: 'الجمعة', status: '4:00 عصراً' }
+                ]
+            },
+            {
+                name: 'المجموعة الخامسة',
+                teams: [
+                    { rank: 1, name: 'كفر داود', p: 1, w: 1, d: 0, l: 0, pts: 3 },
+                    { rank: 2, name: 'القدس ب', p: 0, w: 0, d: 0, l: 0, pts: 0 },
+                    { rank: 3, name: 'طهواي', p: 1, w: 0, d: 0, l: 1, pts: 0 }
+                ],
+                matches: [
+                    { teamA: 'طهواي', teamB: 'كفر داود', score: '1 - 3', status: 'انتهت' },
+                    { teamA: 'القدس ب', teamB: 'كفر داود', score: 'الثلاثاء', status: '5:00 مساءً' },
+                    { teamA: 'القدس ب', teamB: 'طهواي', score: 'الجمعة', status: '4:30 عصراً' }
+                ]
+            },
+            {
+                name: 'المجموعة السادسة',
+                teams: [
+                    { rank: 1, name: 'الجمعية', p: 1, w: 1, d: 0, l: 0, pts: 3 },
+                    { rank: 2, name: 'الهلال', p: 0, w: 0, d: 0, l: 0, pts: 0 },
+                    { rank: 3, name: 'مدريد', p: 1, w: 0, d: 0, l: 1, pts: 0 }
+                ],
+                matches: [
+                    { teamA: 'مدريد', teamB: 'الجمعية', score: '0 - 3', status: 'انتهت' },
+                    { teamA: 'الهلال', teamB: 'مدريد', score: 'الاثنين 23/3', status: '4:30 عصراً' },
+                    { teamA: 'الجمعية', teamB: 'الهلال', score: 'السبت', status: '4:00 عصراً' }
+                ]
+            },
+            {
+                name: 'المجموعة السابعة',
+                teams: [
+                    { rank: 1, name: 'نجوم المستقبل', p: 0, w: 0, d: 0, l: 0, pts: 0 },
+                    { rank: 1, name: 'العزبة القبلية', p: 0, w: 0, d: 0, l: 0, pts: 0 },
+                    { rank: 1, name: 'صقور العرب', p: 0, w: 0, d: 0, l: 0, pts: 0 }
+                ],
+                matches: [
+                    { teamA: 'نجوم المستقبل', teamB: 'العزبة القبلية', score: 'الاثنين', status: '4:00 عصراً' },
+                    { teamA: 'صقور العرب', teamB: 'نجوم المستقبل', score: 'الاثنين 23/3', status: '4:00 عصراً' },
+                    { teamA: 'صقور العرب', teamB: 'العزبة القبلية', score: 'السبت', status: '4:30 عصراً' }
+                ]
+            },
+            {
+                name: 'المجموعة الثامنة',
+                teams: [
+                    { rank: 1, name: 'الأبطال', p: 0, w: 0, d: 0, l: 0, pts: 0 },
+                    { rank: 1, name: 'النسور', p: 0, w: 0, d: 0, l: 0, pts: 0 },
+                    { rank: 1, name: 'أصدقاء أبو تريكة', p: 0, w: 0, d: 0, l: 0, pts: 0 }
+                ],
+                matches: [
+                    { teamA: 'الأبطال', teamB: 'النسور', score: 'الاثنين 23/3', status: '5:00 مساءً' },
+                    { teamA: 'الأبطال', teamB: 'أصدقاء أبو تريكة', score: 'الخميس', status: '4:00 عصراً' },
+                    { teamA: 'أصدقاء أبو تريكة', teamB: 'النسور', score: 'السبت', status: '5:00 مساءً' }
+                ]
             }
-        }
+        ];
 
-        // Generate PDF using html2pdf
-        function downloadPDF() {
-            // Select the element to convert
-            const element = document.getElementById('pdf-content');
-            const reportNum = document.getElementById('in-report-num').value || 'تقرير';
-            const equipName = document.getElementById('in-equipment').value || 'معدة';
-            
-            // Customize filename
-            const fileName = `تقرير_صيانة_${equipName}_${reportNum}.pdf`;
-
-            // Setup options
-            const opt = {
-                margin:       [0, 0, 0, 0], // Margin in mm [top, left, bottom, right]
-                filename:     fileName,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Loading state on button
-            const btn = document.querySelector('button[onclick="downloadPDF()"]');
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري التحميل...';
-            btn.disabled = true;
-
-            // Generate
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Restore button state
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            }).catch(err => {
-                console.error("PDF Generation Error:", err);
-                alert("حدث خطأ أثناء إنشاء ملف PDF.");
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
+        // --- 2. وظائف التصفح ---
+        function navigate(targetId) {
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.add('section-hidden');
             });
+            document.getElementById(targetId).classList.remove('section-hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('nav-active', 'border-b-2', 'border-yellow-400');
+                if(btn.getAttribute('data-target') === targetId) {
+                    btn.classList.add('nav-active', 'border-b-2', 'border-yellow-400');
+                }
+            });
+
+            document.querySelectorAll('.nav-btn-mobile').forEach(btn => {
+                btn.classList.remove('text-yellow-400', 'font-bold');
+                btn.classList.add('text-white');
+                if(btn.getAttribute('data-target') === targetId) {
+                    btn.classList.remove('text-white');
+                    btn.classList.add('text-yellow-400', 'font-bold');
+                }
+            });
+
+            document.getElementById('mobile-menu').classList.add('hidden');
+            document.getElementById('mobile-menu-icon').classList.replace('fa-xmark', 'fa-bars');
+            window.scrollTo(0,0);
         }
 
-        // Start New Report
-        function startNewReport() {
-            // Reset form
-            document.getElementById('report-form').reset();
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.getElementById('mobile-menu-icon');
             
-            // Set date and new random number
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('in-date').value = today;
-            const randomNum = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('in-report-num').value = `REP-${new Date().getFullYear()}-${randomNum}`;
-            
-            // Switch UI
-            document.getElementById('output-section').classList.add('hidden');
-            document.getElementById('output-section').classList.remove('flex');
-            document.getElementById('input-section').classList.remove('hidden');
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Export to Word (.doc)
-        function exportToWord() {
-            const reportNum = document.getElementById('in-report-num').value || 'تقرير';
-            const equipName = document.getElementById('in-equipment').value || 'معدة';
-            const filename = `تقرير_صيانة_${equipName}_${reportNum}.doc`;
-            
-            // Get HTML content
-            const element = document.getElementById('pdf-content').cloneNode(true);
-            
-            // Basic styles for Word to keep the Arabic format looking acceptable
-            const preHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-            <head><meta charset='utf-8'><title>Export HTML To Doc</title>
-            <style>
-                body { font-family: 'Cairo', 'Arial', sans-serif; direction: rtl; text-align: right; }
-                h1, h2, h3 { color: #1e293b; margin-bottom: 10px; }
-                p { margin: 5px 0; }
-                .font-bold { font-weight: bold; }
-                .text-primary { color: #1e293b; }
-                .text-secondary { color: #0ea5e9; }
-                .text-red-600 { color: #dc2626; }
-                .text-red-700 { color: #b91c1c; }
-                .text-green-700 { color: #15803d; }
-                .bg-gray-50 { background-color: #f9fafb; padding: 15px; border: 1px solid #e5e7eb; margin-bottom: 15px; }
-            </style>
-            </head><body>`;
-            
-            const postHtml = "</body></html>";
-            const html = preHtml + element.innerHTML + postHtml;
-
-            // Create blob and download link
-            const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-            const url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
-            const downloadLink = document.createElement("a");
-
-            document.body.appendChild(downloadLink);
-            
-            if(navigator.msSaveOrOpenBlob){
-                navigator.msSaveOrOpenBlob(blob, filename); // For IE/Edge
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.classList.replace('fa-bars', 'fa-xmark');
             } else {
-                downloadLink.href = url;
-                downloadLink.download = filename;
-                downloadLink.click(); // For modern browsers
+                menu.classList.add('hidden');
+                icon.classList.replace('fa-xmark', 'fa-bars');
             }
-            
-            document.body.removeChild(downloadLink);
         }
+
+        // --- 3. بناء المحتوى ديناميكياً ---
+        function renderTournaments() {
+            const grid = document.getElementById('tournaments-grid');
+            let html = '';
+            mockTournaments.forEach(t => {
+                html += `
+                <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden border border-slate-100">
+                    <div class="h-3 w-full bg-red-600"></div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-black text-slate-800">${t.name}</h3>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">${t.status}</span>
+                        </div>
+                        <div class="space-y-3 text-slate-600 mb-6 font-semibold">
+                            <div class="flex items-center"><i class="fa-solid fa-running w-6 text-red-500"></i>الرياضة: ${t.sport}</div>
+                            <div class="flex items-center"><i class="fa-regular fa-calendar w-6 text-red-500"></i>التاريخ: ${t.date}</div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        function renderFixtures() {
+            const list = document.getElementById('schedule-list');
+            let html = '';
+            mockFixtures.forEach(f => {
+                html += `
+                <div class="bg-white rounded-xl shadow-sm border-2 border-slate-100 p-4 hover:border-red-300 transition">
+                    <div class="text-center text-xs text-slate-500 mb-4 font-bold bg-slate-50 py-1.5 rounded flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-calendar-day text-red-500"></i> <span>${f.tournament}</span>
+                    </div>
+                    <div class="flex justify-between items-center px-2 sm:px-8">
+                        <div class="flex flex-col items-center w-1/3">
+                            <span class="font-black text-slate-800 text-center text-sm sm:text-xl">${f.teamA}</span>
+                        </div>
+                        <div class="w-1/3 flex flex-col justify-center items-center bg-slate-50 rounded-lg py-2 border border-slate-200 shadow-inner">
+                            <span class="text-lg sm:text-xl font-bold text-slate-800 mb-1"><i class="fa-regular fa-calendar ml-1 text-slate-400"></i>${f.date}</span>
+                            <span class="text-md sm:text-lg font-bold text-red-600"><i class="fa-regular fa-clock ml-1"></i>${f.time}</span>
+                        </div>
+                        <div class="flex flex-col items-center w-1/3">
+                            <span class="font-black text-slate-800 text-center text-sm sm:text-xl">${f.teamB}</span>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function renderResults() {
+            const list = document.getElementById('results-list');
+            let html = '';
+            mockResults.forEach(r => {
+                let colorA = parseInt(r.scoreA) > parseInt(r.scoreB) ? 'text-green-600' : 'text-slate-900';
+                let colorB = parseInt(r.scoreB) > parseInt(r.scoreA) ? 'text-green-600' : 'text-slate-900';
+                
+                // If the match hasn't started yet
+                if (r.scoreA === '-') {
+                    colorA = 'text-slate-400';
+                    colorB = 'text-slate-400';
+                }
+
+                html += `
+                <div class="bg-white rounded-xl shadow-sm border-2 border-slate-100 p-4 hover:border-red-300 transition">
+                    <div class="text-center text-xs text-slate-500 mb-4 font-bold bg-slate-50 py-1.5 rounded flex justify-center items-center gap-2">
+                        <span>${r.tournament}</span> &bull; <span>${r.date}</span> &bull; <span class="text-red-600 bg-red-50 px-2 py-0.5 rounded">${r.status}</span>
+                    </div>
+                    <div class="flex justify-between items-center px-2 sm:px-8">
+                        <div class="flex flex-col items-center w-1/3">
+                            <span class="font-black text-slate-800 text-center text-sm sm:text-xl">${r.teamA}</span>
+                        </div>
+                        <div class="w-1/3 flex justify-center items-center space-x-reverse space-x-3 bg-slate-100 rounded-lg py-2">
+                            <span class="text-3xl sm:text-4xl font-black ${colorA}">${r.scoreA}</span>
+                            <span class="text-red-500 font-bold text-xl">-</span>
+                            <span class="text-3xl sm:text-4xl font-black ${colorB}">${r.scoreB}</span>
+                        </div>
+                        <div class="flex flex-col items-center w-1/3">
+                            <span class="font-black text-slate-800 text-center text-sm sm:text-xl">${r.teamB}</span>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function renderGroups() {
+            const container = document.getElementById('groups-container');
+            let html = '';
+            
+            mockGroupsData.forEach(group => {
+                let teamsHtml = '';
+                group.teams.forEach(team => {
+                    let rankColor = team.rank === 1 ? 'bg-yellow-400 text-slate-900' : 'bg-slate-100 text-slate-600';
+                    teamsHtml += `
+                        <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition">
+                            <td class="py-2 px-2"><span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs ${rankColor}">${team.rank}</span></td>
+                            <td class="py-2 px-2 font-bold text-slate-800 text-sm">${team.name}</td>
+                            <td class="py-2 px-2 text-center text-slate-600 text-sm">${team.p}</td>
+                            <td class="py-2 px-2 text-center text-green-600 font-bold text-sm">${team.w}</td>
+                            <td class="py-2 px-2 text-center text-slate-500 text-sm">${team.d}</td>
+                            <td class="py-2 px-2 text-center text-red-600 font-bold text-sm">${team.l}</td>
+                            <td class="py-2 px-2 text-center text-slate-900 font-black text-sm bg-slate-50 border-r border-slate-100">${team.pts}</td>
+                        </tr>
+                    `;
+                });
+
+                let matchesHtml = '';
+                group.matches.forEach(match => {
+                    let isPlayed = match.status === 'انتهت';
+                    let scoreClass = isPlayed ? 'text-lg font-black text-slate-900 tracking-widest bg-slate-200 px-3 py-1 rounded' : 'text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded';
+                    matchesHtml += `
+                        <div class="flex items-center justify-between text-sm py-2 border-b border-slate-100 last:border-0">
+                            <span class="w-1/3 font-bold text-slate-800 text-right truncate text-xs sm:text-sm">${match.teamA}</span>
+                            <div class="w-1/3 flex flex-col items-center justify-center">
+                                <span class="${scoreClass}" dir="ltr">${match.score}</span>
+                                <span class="text-[10px] text-slate-400 mt-1">${match.status}</span>
+                            </div>
+                            <span class="w-1/3 font-bold text-slate-800 text-left truncate text-xs sm:text-sm">${match.teamB}</span>
+                        </div>
+                    `;
+                });
+
+                html += `
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden flex flex-col hover:shadow-xl transition-shadow">
+                    <div class="bg-slate-900 text-white py-3 px-5 border-b-4 border-red-600 flex justify-between items-center">
+                        <h3 class="font-black text-lg text-yellow-400"><i class="fa-solid fa-layer-group ml-2"></i>${group.name}</h3>
+                    </div>
+                    
+                    <div class="p-4 flex-grow bg-slate-50">
+                        <h4 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">ترتيب المجموعة</h4>
+                        <div class="overflow-x-auto mb-6 bg-white border border-slate-200 rounded-lg shadow-sm">
+                            <table class="w-full text-right whitespace-nowrap">
+                                <thead class="bg-slate-100 text-slate-500 text-xs">
+                                    <tr>
+                                        <th class="py-2 px-2 font-semibold">م</th>
+                                        <th class="py-2 px-2 font-semibold">الفريق</th>
+                                        <th class="py-2 px-2 font-semibold text-center" title="لعب">ل</th>
+                                        <th class="py-2 px-2 font-semibold text-center" title="فاز">ف</th>
+                                        <th class="py-2 px-2 font-semibold text-center" title="تعادل">ت</th>
+                                        <th class="py-2 px-2 font-semibold text-center" title="خسر">خ</th>
+                                        <th class="py-2 px-2 font-bold text-center text-slate-800" title="النقاط">نقاط</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${teamsHtml}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h4 class="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">مباريات المجموعة</h4>
+                        <div class="bg-white rounded-lg p-2 border border-slate-200 shadow-sm">
+                            ${matchesHtml}
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.onload = () => {
+            renderTournaments();
+            renderFixtures();
+            renderResults();
+            renderGroups();
+        };
     </script>
 </body>
 </html>
